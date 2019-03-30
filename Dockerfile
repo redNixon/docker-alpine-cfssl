@@ -43,9 +43,6 @@ RUN apk add --no-cache --virtual .build-deps \
 	&& go build -o /usr/bin/cfssljson ./cmd/cfssljson \
 	&& go build -o /usr/bin/mkbundle ./cmd/mkbundle \
 	&& go build -o /usr/bin/multirootca ./cmd/multirootca \
-# Install trusted certs
-	&& cp -R "${GOPATH}/src/github.com/cloudflare/cfssl/vendor/github.com/cloudflare/cfssl_trust" / \
-	&& ln -s /cfssl_trust /etc/cfssl/ \
 # Move database migrations to /opt
     && mkdir /opt/ \
     && cp -R "${GOPATH}/src/github.com/cloudflare/cfssl/certdb/" /opt/ \
@@ -63,7 +60,6 @@ RUN apk add --no-cache --virtual .build-deps \
     && chmod 644 /etc/cfssl/*.json \
     && chown cfssl:cfssl /docker-entrypoint.sh \
     && chmod 770 /docker-entrypoint.sh \
-    && chown cfssl:cfssl /cfssl_trust \
     && chown cfssl:cfssl /opt/certdb \
     && chown -R cfssl:cfssl /cfssl-bin \
     && chmod -R 770 /cfssl-bin \
@@ -80,7 +76,7 @@ USER "cfssl:cfssl"
 WORKDIR /etc/cfssl
 
 # Exose ports & volumes
-VOLUME ["/etc/cfssl", "/cfssl_trust"]
+VOLUME ["/etc/cfssl"]
 EXPOSE 8080
 
 # Entrypoint & Command
